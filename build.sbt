@@ -13,24 +13,32 @@ ThisBuild / developers := List(
 // publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
 ThisBuild / tlSonatypeUseLegacyHost := true
 
-// publish website from this branch
-ThisBuild / tlSitePublishBranch := Some("main")
+val Cats = "2.9.0"
+val CatsEffect = "3.4.2"
+val Odin = "0.13.0"
 
 val Scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq(Scala213, "3.1.1")
 ThisBuild / scalaVersion := Scala213 // the default Scala
 
-lazy val root = tlCrossRootProject.aggregate(core)
+lazy val root = tlCrossRootProject.aggregate(slf4JBridge)
 
-lazy val core = crossProject(JVMPlatform, JSPlatform)
-  .crossType(CrossType.Pure)
-  .in(file("core"))
+lazy val slf4JBridge = project
+  .in(file("odin-slf4j-bridge"))
   .settings(
-    name := "odin-contrib",
+    name := "odin-slf4j-bridge",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.9.0",
-      "org.typelevel" %%% "cats-effect" % "3.4.2",
-      "org.scalameta" %%% "munit" % "0.7.29" % Test,
-      "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
+      "org.typelevel" %% "cats-core" % Cats,
+      "org.typelevel" %% "cats-effect" % CatsEffect,
+      "com.github.valskalla" %% "odin-core" % Odin,
+      "org.slf4j" % "slf4j-api" % "1.7.36"
     )
   )
+
+lazy val slf4JBridgeBenchmarks = project
+  .in(file("odin-slf4j-bridge-benchmarks"))
+  .enablePlugins(JmhPlugin)
+  .settings(
+    name := "odin-slf4j-bridge-benchmarks"
+  )
+  .dependsOn(slf4JBridge)
