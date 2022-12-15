@@ -29,10 +29,10 @@ import scala.concurrent.duration._
 
 class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
 
-  implicit val runtime = IORuntime.global
+  implicit val runtime: IORuntime = IORuntime.global
 
   test("record a message") {
-    PropF.forAllF { message: String =>
+    PropF.forAllF { (message: String) =>
       val messages = runTest(_.info(message))
 
       messages.map(_.map(_.message.value).toList).assertEquals(List(message))
