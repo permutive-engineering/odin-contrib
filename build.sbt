@@ -21,7 +21,8 @@ val Scala213 = "2.13.10"
 ThisBuild / crossScalaVersions := Seq(Scala213, "3.2.1")
 ThisBuild / scalaVersion := Scala213 // the default Scala
 
-lazy val root = tlCrossRootProject.aggregate(dynamic, testing, slf4JBridge)
+lazy val root =
+  tlCrossRootProject.aggregate(dynamic, testing, log4cats, slf4JBridge)
 
 lazy val dynamic = project
   .in(file("odin-dynamic"))
@@ -47,6 +48,18 @@ lazy val testing = project
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % Cats,
       "org.typelevel" %% "cats-effect-kernel" % CatsEffect,
+      "com.github.valskalla" %% "odin-core" % Odin
+    )
+  )
+
+lazy val log4cats = project
+  .in(file("log4cats-odin"))
+  .settings(
+    name := "log4cats-odin",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % Cats,
+      "org.typelevel" %% "cats-effect-kernel" % CatsEffect,
+      "org.typelevel" %% "log4cats-core" % "2.5.0",
       "com.github.valskalla" %% "odin-core" % Odin
     )
   )
