@@ -27,8 +27,6 @@ A bridge between [Odin] and [Slf4j] allowing the dynamic [Odin] logger to be use
 
 In benchmarks, the bridge performs as well as [Log4Cats] with a [Logback] backend.
 
-This will automatically be set up for you if you use [`logging-odin`] or [`logging-odin-tracing`] in your project.
-
 [`odin-testing`]: odin-testing
 [`log4cats-odin`]: log4cats-odin
 [`odin-dynamic`]: odin-dynamic
