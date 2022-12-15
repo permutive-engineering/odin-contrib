@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Permutive
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.permutive.logging.slf4j.odin
 
 import java.io.PrintStream
@@ -14,41 +30,66 @@ import io.odin.formatter.Formatter
 
 private[odin] trait OdinTranslator {
   def minLevel: Level
-  def run(name: String, level: Level, msg: String, t: Option[Throwable] = None): Unit
+  def run(
+      name: String,
+      level: Level,
+      msg: String,
+      t: Option[Throwable] = None
+  ): Unit
 }
 
 object OdinTranslator {
-  def apply[F[_]: Sync](underlying: Logger[F])(implicit dispatcher: Dispatcher[F]): OdinTranslator =
+  def apply[F[_]: Sync](
+      underlying: Logger[F]
+  )(implicit dispatcher: Dispatcher[F]): OdinTranslator =
     new OdinTranslator {
-      override def run(loggerName: String, level: Level, msg: String, t: Option[Throwable]): Unit =
+      override def run(
+          loggerName: String,
+          level: Level,
+          msg: String,
+          t: Option[Throwable]
+      ): Unit =
         dispatcher.unsafeRunSync(for {
           timestamp <- Clock[F].realTime
-          _         <- underlying.log(makeMessage(loggerName, level, msg, t, timestamp.toMillis))
+          _ <- underlying.log(
+            makeMessage(loggerName, level, msg, t, timestamp.toMillis)
+          )
         } yield ())
 
       override def minLevel: Level = underlying.minLevel
     }
 
-  /**
-    * Pretty much a copy/paste of Odin's console logger, but without any cats-effect protections.
+  /** Pretty much a copy/paste of Odin's console logger, but without any
+    * cats-effect protections.
     *
-    * This mitigates this "bug" https://github.com/valskalla/odin/issues/364 where when the CE `Dispatcher` is
-    * created in an object in an unsafe way and thread that is logging using Slf4j is interrupted so does the
+    * This mitigates this "bug" https://github.com/valskalla/odin/issues/364
+    * where when the CE `Dispatcher` is created in an object in an unsafe way
+    * and thread that is logging using Slf4j is interrupted so does the
     * dispatcher, and the object fails initialisation.
     *
-    * This issue _does not_ affect dispatchers that have been safely created inside the `IORuntime` properly. So
-    * when setting the global logger later in the initialisation does not result in fatal exceptions crashing the
+    * This issue _does not_ affect dispatchers that have been safely created
+    * inside the `IORuntime` properly. So when setting the global logger later
+    * in the initialisation does not result in fatal exceptions crashing the
     * whole app when a thread that is trying to log gets interrupted
     */
-  private[odin] def unsafeConsole(level: Level, formatter: Formatter): OdinTranslator = new OdinTranslator {
+  private[odin] def unsafeConsole(
+      level: Level,
+      formatter: Formatter
+  ): OdinTranslator = new OdinTranslator {
     override def minLevel: Level = level
 
     private def println(out: PrintStream, msg: LoggerMessage): Unit =
       out.println(formatter.format(msg))
 
-    override def run(loggerName: String, level: Level, msg: String, t: Option[Throwable]): Unit =
+    override def run(
+        loggerName: String,
+        level: Level,
+        msg: String,
+        t: Option[Throwable]
+    ): Unit =
       if (level >= minLevel) {
-        val message = makeMessage(loggerName, level, msg, t, System.currentTimeMillis())
+        val message =
+          makeMessage(loggerName, level, msg, t, System.currentTimeMillis())
 
         if (level < Level.Warn) {
           println(System.out, message)
@@ -60,7 +101,13 @@ object OdinTranslator {
       }
   }
 
-  private def makeMessage(loggerName: String, level: Level, msg: String, t: Option[Throwable], timestamp: Long) =
+  private def makeMessage(
+      loggerName: String,
+      level: Level,
+      msg: String,
+      t: Option[Throwable],
+      timestamp: Long
+  ) =
     LoggerMessage(
       level = level,
       message = Eval.now(msg),

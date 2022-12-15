@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Permutive
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.permutive.logging.slf4j.odin
 
 import cats.syntax.partialOrder._
@@ -5,11 +21,18 @@ import io.odin.Level
 import org.slf4j.Logger
 import org.slf4j.helpers.{FormattingTuple, MarkerIgnoringBase, MessageFormatter}
 
-class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger with LoggerVarargsAdapter {
+class LoggerAdapter(loggerName: String)
+    extends MarkerIgnoringBase
+    with Logger
+    with LoggerVarargsAdapter {
 
   override def getName: String = loggerName
 
-  private def run(level: Level, msg: String, t: Option[Throwable] = None): Unit =
+  private def run(
+      level: Level,
+      msg: String,
+      t: Option[Throwable] = None
+  ): Unit =
     GlobalLogger.get.run(loggerName, level, msg, t)
 
   private[slf4j] def runFormatted(level: Level, tuple: FormattingTuple): Unit =
@@ -19,7 +42,8 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger w
 
   def trace(msg: String): Unit = run(Level.Trace, msg)
 
-  def trace(format: String, arg: Any): Unit = runFormatted(Level.Trace, MessageFormatter.format(format, arg))
+  def trace(format: String, arg: Any): Unit =
+    runFormatted(Level.Trace, MessageFormatter.format(format, arg))
 
   def trace(format: String, arg1: Any, arg2: Any): Unit =
     runFormatted(Level.Trace, MessageFormatter.format(format, arg1, arg2))
@@ -31,7 +55,8 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger w
 
   def debug(msg: String): Unit = run(Level.Debug, msg)
 
-  def debug(format: String, arg: Any): Unit = runFormatted(Level.Debug, MessageFormatter.format(format, arg))
+  def debug(format: String, arg: Any): Unit =
+    runFormatted(Level.Debug, MessageFormatter.format(format, arg))
 
   def debug(format: String, arg1: Any, arg2: Any): Unit =
     runFormatted(Level.Debug, MessageFormatter.format(format, arg1, arg2))
@@ -43,7 +68,8 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger w
 
   def info(msg: String): Unit = run(Level.Info, msg)
 
-  def info(format: String, arg: Any): Unit = runFormatted(Level.Info, MessageFormatter.format(format, arg))
+  def info(format: String, arg: Any): Unit =
+    runFormatted(Level.Info, MessageFormatter.format(format, arg))
 
   def info(format: String, arg1: Any, arg2: Any): Unit =
     runFormatted(Level.Info, MessageFormatter.format(format, arg1, arg2))
@@ -55,7 +81,8 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger w
 
   def warn(msg: String): Unit = run(Level.Warn, msg)
 
-  def warn(format: String, arg: Any): Unit = runFormatted(Level.Warn, MessageFormatter.format(format, arg))
+  def warn(format: String, arg: Any): Unit =
+    runFormatted(Level.Warn, MessageFormatter.format(format, arg))
 
   def warn(format: String, arg1: Any, arg2: Any): Unit =
     runFormatted(Level.Warn, MessageFormatter.format(format, arg1, arg2))
@@ -67,7 +94,8 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger w
 
   def error(msg: String): Unit = run(Level.Error, msg)
 
-  def error(format: String, arg: Any): Unit = runFormatted(Level.Error, MessageFormatter.format(format, arg))
+  def error(format: String, arg: Any): Unit =
+    runFormatted(Level.Error, MessageFormatter.format(format, arg))
 
   def error(format: String, arg1: Any, arg2: Any): Unit =
     runFormatted(Level.Error, MessageFormatter.format(format, arg1, arg2))
