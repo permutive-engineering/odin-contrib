@@ -11,11 +11,11 @@ import io.odin.{Level, Logger}
 
 import scala.util.control.NonFatal
 
-/**
-  * Utilities for getting a logger that can be used by SLF4J.
+/** Utilities for getting a logger that can be used by SLF4J.
   */
 object GlobalLogger {
-  private val default: OdinTranslator = OdinTranslator.unsafeConsole(level = Level.Info, Formatter.default)
+  private val default: OdinTranslator =
+    OdinTranslator.unsafeConsole(level = Level.Info, Formatter.default)
 
   private val ref = new AtomicReference[OdinTranslator]
 
@@ -28,7 +28,12 @@ object GlobalLogger {
     } catch {
       case NonFatal(th) =>
         // Use default logger if there is an error getting the logger from the atomic ref
-        default.run(this.getClass.getName, Level.Error, "Failed to get logger from atomic ref", Some(th))
+        default.run(
+          this.getClass.getName,
+          Level.Error,
+          "Failed to get logger from atomic ref",
+          Some(th)
+        )
         default
     }
 
@@ -40,7 +45,11 @@ object GlobalLogger {
     val set = Dispatcher
       .sequential[F]
       .map(implicit dis => OdinTranslator[F](logger))
-      .flatMap(log => Resource.make(Sync[F].delay(ref.set(log)))(_ => Sync[F].delay(ref.set(null))))
+      .flatMap(log =>
+        Resource.make(Sync[F].delay(ref.set(log)))(_ =>
+          Sync[F].delay(ref.set(null))
+        )
+      )
 
     val error: Resource[F, Unit] = new RuntimeException(
       "Logger already set: Cannot set the global logger multiple times"

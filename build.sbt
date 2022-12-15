@@ -18,10 +18,38 @@ val CatsEffect = "3.4.2"
 val Odin = "0.13.0"
 
 val Scala213 = "2.13.10"
-ThisBuild / crossScalaVersions := Seq(Scala213, "3.1.1")
+ThisBuild / crossScalaVersions := Seq(Scala213, "3.2.1")
 ThisBuild / scalaVersion := Scala213 // the default Scala
 
-lazy val root = tlCrossRootProject.aggregate(slf4JBridge)
+lazy val root = tlCrossRootProject.aggregate(dynamic, testing, slf4JBridge)
+
+lazy val dynamic = project
+  .in(file("odin-dynamic"))
+  .settings(
+    name := "odin-dynamic",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % Cats,
+      "org.typelevel" %% "kittens" % "3.0.0",
+      "org.typelevel" %% "cats-effect-kernel" % CatsEffect,
+      "com.github.valskalla" %% "odin-core" % Odin,
+      "org.typelevel" %% "cats-effect" % CatsEffect % Test,
+      "org.typelevel" %% "cats-effect-testkit" % CatsEffect % Test,
+      "org.typelevel" %% "scalacheck-effect-munit" % "1.0.4" % Test,
+      "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
+    )
+  )
+  .dependsOn(testing % "compile->test")
+
+lazy val testing = project
+  .in(file("odin-testing"))
+  .settings(
+    name := "odin-testing",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-core" % Cats,
+      "org.typelevel" %% "cats-effect-kernel" % CatsEffect,
+      "com.github.valskalla" %% "odin-core" % Odin
+    )
+  )
 
 lazy val slf4JBridge = project
   .in(file("odin-slf4j-bridge"))
@@ -29,7 +57,7 @@ lazy val slf4JBridge = project
     name := "odin-slf4j-bridge",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % Cats,
-      "org.typelevel" %% "cats-effect" % CatsEffect,
+      "org.typelevel" %% "cats-effect-std" % CatsEffect,
       "com.github.valskalla" %% "odin-core" % Odin,
       "org.slf4j" % "slf4j-api" % "1.7.36"
     )
