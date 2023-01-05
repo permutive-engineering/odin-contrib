@@ -7,6 +7,10 @@ This repository contains extra utilities that work with the [Odin] logging libra
 An [Odin] logger implementation that captures all log entries in a concurrent `Ref`. This is especially useful for
 testing.
 
+```scala
+"com.permutive" %% "odin-testing" "<VERSION>"
+```
+
 ## [`log4cats-odin`]
 
 Provides translation and implicit syntax between [Odin] and [Log4Cats] loggers. This allows libraries and applications
@@ -16,16 +20,28 @@ Note that due to the use of [sourcecode] in Odin, the location of logging messag
 which the [Odin] logger was converted to a [Log4Cats] logger, so in some cases it may simply be better to span an
 [Slf4J] logger where needed.
 
+```scala
+"com.permutive" %% "log4cats-odin" "<VERSION>"
+```
+
 ## [`odin-dynamic`]
 
 An [Odin] logger implementation that allows runtime reconfiguration of log levels, both for the entire application, but
 also certain packages or classes.
+
+```scala
+"com.permutive" %% "odin-dynamic" "<VERSION>"
+```
 
 ## [`odin-slf4j-bridge`]
 
 A bridge between [Odin] and [Slf4j] allowing the dynamic [Odin] logger to be used by default for [Slf4j] log messages.
 
 In benchmarks, the bridge performs as well as [Log4Cats] with a [Logback] backend.
+
+```scala
+"com.permutive" %% "odin-slf4j-bridge" "<VERSION>"
+```
 
 [`odin-testing`]: odin-testing
 [`log4cats-odin`]: log4cats-odin
