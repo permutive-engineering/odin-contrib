@@ -39,7 +39,7 @@ lazy val dynamic = project
       "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
     )
   )
-  .dependsOn(testing % "compile->test")
+  .dependsOn(testing % "test->compile")
 
 lazy val testing = project
   .in(file("odin-testing"))
