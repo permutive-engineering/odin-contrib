@@ -71,10 +71,25 @@ object DynamicOdinConsoleLogger {
 
   case class RuntimeConfig(
       minLevel: Level,
-      levelMapping: Map[String, Level] = Map.empty
+      levelMapping: Map[String, LevelConfig] = Map.empty
   )
   object RuntimeConfig {
     implicit val eq: Eq[RuntimeConfig] = cats.derived.semiauto.eq
+  }
+
+  sealed trait LevelConfig {
+    def toLevel: Option[Level]
+  }
+
+  object LevelConfig {
+    case object Trace extends LevelConfig { val toLevel = Some(Level.Trace) }
+    case object Debug extends LevelConfig { val toLevel = Some(Level.Debug) }
+    case object Info extends LevelConfig { val toLevel = Some(Level.Info) }
+    case object Warn extends LevelConfig { val toLevel = Some(Level.Warn) }
+    case object Error extends LevelConfig { val toLevel = Some(Level.Error) }
+    case object Off extends LevelConfig { val toLevel = None }
+
+    implicit val eq: Eq[LevelConfig] = cats.derived.semiauto.eq
   }
 
   def console[F[_]: Async](config: Config, initialConfig: RuntimeConfig)(
@@ -99,7 +114,9 @@ object DynamicOdinConsoleLogger {
       else
         enclosureRouting(
           config.levelMapping.view
-            .mapValues(mainLogger.withMinimalLevel)
+            .mapValues(levelConfig =>
+              levelConfig.toLevel.fold(Logger.noop)(mainLogger.withMinimalLevel)
+            )
             .toList: _*
         )
           .withFallback(mainLogger)
