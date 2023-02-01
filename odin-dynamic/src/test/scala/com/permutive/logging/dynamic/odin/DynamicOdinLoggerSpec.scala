@@ -16,16 +16,15 @@
 
 package com.permutive.logging.dynamic.odin
 
-import cats.effect.unsafe.IORuntime
 import cats.effect.{IO, Resource}
 import com.permutive.logging.dynamic.odin.DynamicOdinConsoleLogger.{
   LevelConfig,
   RuntimeConfig
 }
 import com.permutive.logging.odin.testing.OdinRefLogger
-import io.odin.{Level, LoggerMessage}
 import io.odin.formatter.Formatter
 import io.odin.meta.Position
+import io.odin.{Level, LoggerMessage}
 import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
 import org.scalacheck.Arbitrary
 import org.scalacheck.effect.PropF
@@ -35,26 +34,58 @@ import scala.concurrent.duration._
 
 class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
 
-  implicit val runtime: IORuntime = IORuntime.global
-
-  implicit val arbPosition: Arbitrary[Position] =
+  private implicit val arbPosition: Arbitrary[Position] =
     Arbitrary(
       Arbitrary
         .arbitrary[(String, String, String, Int)]
         .map((Position.apply _).tupled)
     )
 
-  test("record a message") {
-    PropF.forAllF { (message: String) =>
-      val messages = runTest(_.info(message))
+  private val defaultConfig = RuntimeConfig(Level.Info)
 
-      messages.map(_.map(_.message.value).toList).assertEquals(List(message))
+  test("record only messages at the min level") {
+    PropF.forAllF { (debugMessage: String, infoMessage: String) =>
+      val messages = runTest()(logger =>
+        logger.debug(debugMessage) >>
+          logger.info(infoMessage)
+      )
+
+      messages
+        .map(_.map(_.message.value).toList)
+        .assertEquals(List(infoMessage))
+    }
+  }
+
+  test("disable logging for a particular enclosure") {
+    PropF.forAllF {
+      (
+          pos1Msg: String,
+          pos2Msg: String,
+          position1: Position
+      ) =>
+        val position2 =
+          position1.copy(enclosureName = position1.enclosureName + "2")
+        val messages = runTest(
+          RuntimeConfig(
+            Level.Info,
+            Map(
+              position2.enclosureName -> LevelConfig.Off
+            )
+          )
+        )(logger =>
+          logger.info(pos1Msg)(implicitly, position1) >>
+            logger.error(pos2Msg)(implicitly, position2)
+        )
+
+        messages
+          .map(_.map(_.message.value).toList)
+          .assertEquals(List(pos1Msg))
     }
   }
 
   test("update min-level config") {
     PropF.forAllF { (messageBeforeChange: String, messageAfterChange: String) =>
-      val messages = runTest { logger =>
+      val messages = runTest() { logger =>
         logger.info(messageBeforeChange) >>
           IO.sleep(10.millis) >>
           logger.update(RuntimeConfig(minLevel = Level.Warn)) >>
@@ -76,7 +107,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
           position1: Position,
           position2: Position
       ) =>
-        val messages = runTest { logger =>
+        val messages = runTest() { logger =>
           val positionWhichChangesLevel =
             position1.copy(enclosureName = position1.enclosureName + "changes")
           logger.info(infoMsg1Pos1)(implicitly, positionWhichChangesLevel) >>
@@ -97,14 +128,14 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
     }
   }
 
-  def runTest(
+  private def runTest(initialConfig: RuntimeConfig = defaultConfig)(
       useLogger: DynamicOdinConsoleLogger[IO] => IO[Unit]
   ): IO[Queue[LoggerMessage]] = (for {
     testLogger <- Resource.eval(OdinRefLogger.create[IO]())
     dynamic <- DynamicOdinConsoleLogger.create[IO](
       DynamicOdinConsoleLogger
         .Config(formatter = Formatter.default, asyncTimeWindow = 0.nanos),
-      RuntimeConfig(Level.Info)
+      initialConfig
     )(config => testLogger.withMinimalLevel(config.minLevel))
     _ <- Resource.eval(useLogger(dynamic))
   } yield testLogger)
