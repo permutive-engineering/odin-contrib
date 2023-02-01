@@ -18,7 +18,10 @@ package com.permutive.logging.dynamic.odin
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{IO, Resource}
-import com.permutive.logging.dynamic.odin.DynamicOdinConsoleLogger.RuntimeConfig
+import com.permutive.logging.dynamic.odin.DynamicOdinConsoleLogger.{
+  LevelConfig,
+  RuntimeConfig
+}
 import com.permutive.logging.odin.testing.OdinRefLogger
 import io.odin.{Level, LoggerMessage}
 import io.odin.formatter.Formatter
@@ -81,7 +84,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
             logger.update(
               RuntimeConfig(
                 Level.Info,
-                Map(positionWhichChangesLevel.enclosureName -> Level.Warn)
+                Map(positionWhichChangesLevel.enclosureName -> LevelConfig.Warn)
               )
             ) >>
             logger.info(infoMsg2Pos1)(implicitly, positionWhichChangesLevel) >>
