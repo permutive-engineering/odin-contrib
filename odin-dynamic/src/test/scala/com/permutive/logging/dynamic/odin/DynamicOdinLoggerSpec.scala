@@ -83,7 +83,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
     }
   }
 
-  test("update default-level config") {
+  test("raises default-level config") {
     PropF.forAllF { (messageBeforeChange: String, messageAfterChange: String) =>
       val messages = runTest() { logger =>
         logger.info(messageBeforeChange) >>
@@ -94,6 +94,20 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
       messages
         .map(_.map(_.message.value).toList)
         .assertEquals(List(messageBeforeChange))
+    }
+  }
+
+  test("lowers default-level config") {
+    PropF.forAllF { (messageBeforeChange: String, messageAfterChange: String) =>
+      val messages = runTest() { logger =>
+        logger.info(messageBeforeChange) >>
+          IO.sleep(10.millis) >>
+          logger.update(RuntimeConfig(defaultLevel = Level.Debug)) >>
+          logger.debug(messageAfterChange)
+      }
+      messages
+        .map(_.map(_.message.value).toList)
+        .assertEquals(List(messageBeforeChange, messageAfterChange))
     }
   }
 
