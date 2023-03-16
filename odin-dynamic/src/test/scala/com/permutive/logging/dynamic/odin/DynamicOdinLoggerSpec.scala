@@ -83,17 +83,33 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
     }
   }
 
-  test("update min-level config") {
+  test("update default-level config") {
     PropF.forAllF { (messageBeforeChange: String, messageAfterChange: String) =>
       val messages = runTest() { logger =>
         logger.info(messageBeforeChange) >>
           IO.sleep(10.millis) >>
-          logger.update(RuntimeConfig(minLevel = Level.Warn)) >>
+          logger.update(RuntimeConfig(defaultLevel = Level.Warn)) >>
           logger.info(messageAfterChange)
       }
       messages
         .map(_.map(_.message.value).toList)
         .assertEquals(List(messageBeforeChange))
+    }
+  }
+
+  test("overrides default level for a certain package") {
+    PropF.forAllF { (message: String) =>
+      val messages = runTest(
+        RuntimeConfig(
+          defaultLevel = Level.Warn,
+          Map("com.permutive.logging.dynamic.odin" -> LevelConfig.Debug)
+        )
+      ) { logger =>
+        logger.debug(message)
+      }
+      messages
+        .map(_.map(_.message.value).toList)
+        .assertEquals(List(message))
     }
   }
 
@@ -136,7 +152,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
       DynamicOdinConsoleLogger
         .Config(formatter = Formatter.default, asyncTimeWindow = 0.nanos),
       initialConfig
-    )(config => testLogger.withMinimalLevel(config.minLevel))
+    )(config => testLogger.withMinimalLevel(config.defaultLevel))
     _ <- Resource.eval(useLogger(dynamic))
   } yield testLogger)
     .use { testLogger =>

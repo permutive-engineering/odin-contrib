@@ -37,10 +37,9 @@ trait DynamicOdinConsoleLogger[F[_]] extends Logger[F] {
 }
 
 class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
-    ref: Ref[F, (RuntimeConfig, Logger[F])],
-    level: Level
+    ref: Ref[F, (RuntimeConfig, Logger[F])]
 )(make: RuntimeConfig => Logger[F])(implicit eq: Eq[RuntimeConfig])
-    extends DefaultLogger[F](level)
+    extends DefaultLogger[F](Level.Trace)
     with DynamicOdinConsoleLogger[F] { outer =>
   protected def withLogger(f: Logger[F] => F[Unit]): F[Unit] = ref.get.flatMap {
     case (_, l) => f(l)
@@ -56,7 +55,7 @@ class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
   override def submit(msg: LoggerMessage): F[Unit] = withLogger(_.log(msg))
 
   override def withMinimalLevel(level: Level): Logger[F] =
-    new DynamicOdinConsoleLoggerImpl[F](ref, level)(make) {
+    new DynamicOdinConsoleLoggerImpl[F](ref)(make) {
       override protected def withLogger(f: Logger[F] => F[Unit]): F[Unit] =
         outer.withLogger(l => f(l.withMinimalLevel(level)))
     }
@@ -78,17 +77,17 @@ object DynamicOdinConsoleLogger {
   }
 
   sealed abstract class RuntimeConfig private (
-      val minLevel: Level,
+      val defaultLevel: Level,
       val levelMapping: Map[String, LevelConfig]
   )
   object RuntimeConfig {
     def apply(
-        minLevel: Level,
+        defaultLevel: Level,
         levelMapping: Map[String, LevelConfig] = Map.empty
-    ): RuntimeConfig = new RuntimeConfig(minLevel, levelMapping) {}
+    ): RuntimeConfig = new RuntimeConfig(defaultLevel, levelMapping) {}
 
     implicit val eq: Eq[RuntimeConfig] =
-      Eq.by(config => (config.minLevel, config.levelMapping))
+      Eq.by(config => (config.defaultLevel, config.levelMapping))
   }
 
   sealed trait LevelConfig
@@ -123,7 +122,7 @@ object DynamicOdinConsoleLogger {
       implicit eq: Eq[RuntimeConfig]
   ): Resource[F, DynamicOdinConsoleLogger[F]] =
     create(config, initialConfig)(c =>
-      consoleLogger(config.formatter, c.minLevel)
+      consoleLogger(config.formatter, c.defaultLevel)
     )
 
   def create[F[_]: Async](
@@ -137,7 +136,8 @@ object DynamicOdinConsoleLogger {
     val makeWithLevels: RuntimeConfig => Logger[F] = { config =>
       val mainLogger = make(config)
 
-      if (config.levelMapping.isEmpty) mainLogger
+      if (config.levelMapping.isEmpty)
+        mainLogger.withMinimalLevel(config.defaultLevel)
       else
         enclosureRouting(
           config.levelMapping.view.mapValues {
@@ -146,7 +146,7 @@ object DynamicOdinConsoleLogger {
             case level: LevelConfig.ToLevel =>
               mainLogger.withMinimalLevel(level.toLevel)
           }.toList: _*
-        ).withFallback(mainLogger)
+        ).withFallback(mainLogger.withMinimalLevel(config.defaultLevel))
     }
 
     for {
@@ -156,8 +156,7 @@ object DynamicOdinConsoleLogger {
         )
       )
       underlying = new DynamicOdinConsoleLoggerImpl[F](
-        ref,
-        runtimeConfig.minLevel
+        ref
       )(makeWithLevels)
       async <- underlying.withAsync(
         config.asyncTimeWindow,
