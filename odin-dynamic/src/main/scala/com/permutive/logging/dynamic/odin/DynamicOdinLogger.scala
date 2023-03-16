@@ -63,31 +63,58 @@ class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
 }
 
 object DynamicOdinConsoleLogger {
-  case class Config(
-      formatter: Formatter,
-      asyncTimeWindow: FiniteDuration = 1.millis,
-      asyncMaxBufferSize: Option[Int] = None
+  sealed abstract class Config private (
+      val formatter: Formatter,
+      val asyncTimeWindow: FiniteDuration,
+      val asyncMaxBufferSize: Option[Int]
   )
 
-  case class RuntimeConfig(
-      minLevel: Level,
-      levelMapping: Map[String, LevelConfig] = Map.empty
+  object Config {
+    def apply(
+        formatter: Formatter,
+        asyncTimeWindow: FiniteDuration = 1.millis,
+        asyncMaxBufferSize: Option[Int] = None
+    ): Config = new Config(formatter, asyncTimeWindow, asyncMaxBufferSize) {}
+  }
+
+  sealed abstract class RuntimeConfig private (
+      val minLevel: Level,
+      val levelMapping: Map[String, LevelConfig]
   )
   object RuntimeConfig {
-    implicit val eq: Eq[RuntimeConfig] = cats.derived.semiauto.eq
+    def apply(
+        minLevel: Level,
+        levelMapping: Map[String, LevelConfig] = Map.empty
+    ): RuntimeConfig = new RuntimeConfig(minLevel, levelMapping) {}
+
+    implicit val eq: Eq[RuntimeConfig] =
+      Eq.by(config => (config.minLevel, config.levelMapping))
   }
 
-  sealed trait LevelConfig {
-    def toLevel: Option[Level]
-  }
+  sealed trait LevelConfig
 
   object LevelConfig {
-    case object Trace extends LevelConfig { val toLevel = Some(Level.Trace) }
-    case object Debug extends LevelConfig { val toLevel = Some(Level.Debug) }
-    case object Info extends LevelConfig { val toLevel = Some(Level.Info) }
-    case object Warn extends LevelConfig { val toLevel = Some(Level.Warn) }
-    case object Error extends LevelConfig { val toLevel = Some(Level.Error) }
-    case object Off extends LevelConfig { val toLevel = None }
+    private[odin] trait ToLevel { self: LevelConfig =>
+      def toLevel: Level
+    }
+
+    case object Trace extends LevelConfig with ToLevel {
+      val toLevel = Level.Trace
+    }
+    case object Debug extends LevelConfig with ToLevel {
+      val toLevel = Level.Debug
+    }
+    case object Info extends LevelConfig with ToLevel {
+      val toLevel = Level.Info
+    }
+    case object Warn extends LevelConfig with ToLevel {
+      val toLevel = Level.Warn
+    }
+    case object Error extends LevelConfig with ToLevel {
+      val toLevel = Level.Error
+    }
+    case object Unknown extends LevelConfig
+    case object Off extends LevelConfig
 
     implicit val eq: Eq[LevelConfig] = cats.derived.semiauto.eq
   }
@@ -113,13 +140,13 @@ object DynamicOdinConsoleLogger {
       if (config.levelMapping.isEmpty) mainLogger
       else
         enclosureRouting(
-          config.levelMapping.view
-            .mapValues(levelConfig =>
-              levelConfig.toLevel.fold(Logger.noop)(mainLogger.withMinimalLevel)
-            )
-            .toList: _*
-        )
-          .withFallback(mainLogger)
+          config.levelMapping.view.mapValues {
+            case _: LevelConfig.Off.type     => Logger.noop
+            case _: LevelConfig.Unknown.type => mainLogger
+            case level: LevelConfig.ToLevel =>
+              mainLogger.withMinimalLevel(level.toLevel)
+          }.toList: _*
+        ).withFallback(mainLogger)
     }
 
     for {
