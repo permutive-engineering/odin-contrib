@@ -7,67 +7,33 @@ addCommandAlias("ci-test", "fix --check; versionPolicyCheck; mdoc; publishLocal;
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "versionCheck; github; ci-release")
 
-val Cats = "2.9.0"
+lazy val `odin-dynamic` = project
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0")
+  .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.0.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.4.2")
+  .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.4.2" % Test)
+  .settings(libraryDependencies += "org.typelevel" %% "scalacheck-effect-munit" % "1.0.4" % Test)
+  .settings(libraryDependencies += "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test)
+  .dependsOn(`odin-testing` % "test->compile")
 
-val CatsEffect = "3.4.2"
+lazy val `odin-testing` = project
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.4.2")
+  .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
 
-val Odin = "0.13.0"
+lazy val `log4cats-odin` = project
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.4.2")
+  .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.5.0")
+  .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
 
-lazy val dynamic = project
-  .in(file("odin-dynamic"))
-  .settings(
-    name := "odin-dynamic",
-    libraryDependencies ++= Seq(
-      "org.typelevel"        %% "cats-core"               % Cats,
-      "org.typelevel"        %% "kittens"                 % "3.0.0",
-      "org.typelevel"        %% "cats-effect"             % CatsEffect,
-      "com.github.valskalla" %% "odin-core"               % Odin,
-      "org.typelevel"        %% "cats-effect-testkit"     % CatsEffect % Test,
-      "org.typelevel"        %% "scalacheck-effect-munit" % "1.0.4"    % Test,
-      "org.typelevel"        %% "munit-cats-effect-3"     % "1.0.7"    % Test
-    )
-  )
-  .dependsOn(testing % "test->compile")
+lazy val `odin-slf4j-bridge` = project
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.4.2")
+  .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
+  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.36")
 
-lazy val testing = project
-  .in(file("odin-testing"))
-  .settings(
-    name := "odin-testing",
-    libraryDependencies ++= Seq(
-      "org.typelevel"        %% "cats-core"   % Cats,
-      "org.typelevel"        %% "cats-effect" % CatsEffect,
-      "com.github.valskalla" %% "odin-core"   % Odin
-    )
-  )
-
-lazy val log4cats = project
-  .in(file("log4cats-odin"))
-  .settings(
-    name := "log4cats-odin",
-    libraryDependencies ++= Seq(
-      "org.typelevel"        %% "cats-core"     % Cats,
-      "org.typelevel"        %% "cats-effect"   % CatsEffect,
-      "org.typelevel"        %% "log4cats-core" % "2.5.0",
-      "com.github.valskalla" %% "odin-core"     % Odin
-    )
-  )
-
-lazy val slf4JBridge = project
-  .in(file("odin-slf4j-bridge"))
-  .settings(
-    name := "odin-slf4j-bridge",
-    libraryDependencies ++= Seq(
-      "org.typelevel"        %% "cats-core"   % Cats,
-      "org.typelevel"        %% "cats-effect" % CatsEffect,
-      "com.github.valskalla" %% "odin-core"   % Odin,
-      "org.slf4j"             % "slf4j-api"   % "1.7.36"
-    )
-  )
-
-lazy val slf4JBridgeBenchmarks = project
-  .in(file("odin-slf4j-bridge-benchmarks"))
+lazy val `odin-slf4j-bridge-benchmarks` = project
   .enablePlugins(JmhPlugin)
-  .settings(
-    name := "odin-slf4j-bridge-benchmarks"
-  )
-  .dependsOn(slf4JBridge)
+  .dependsOn(`odin-slf4j-bridge`)
