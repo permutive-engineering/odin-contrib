@@ -7,6 +7,9 @@ addCommandAlias("ci-test", "fix --check; versionPolicyCheck; mdoc; publishLocal;
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "versionCheck; github; ci-release")
 
+lazy val documentation = project
+  .enablePlugins(MdocPlugin)
+
 lazy val `odin-dynamic` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.9.0")
   .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.0.0")
