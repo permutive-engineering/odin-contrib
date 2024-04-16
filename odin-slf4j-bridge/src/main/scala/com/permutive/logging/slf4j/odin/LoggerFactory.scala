@@ -16,8 +16,11 @@
 
 package com.permutive.logging.slf4j.odin
 
-import org.slf4j.{ILoggerFactory, Logger}
+import org.slf4j.ILoggerFactory
+import org.slf4j.Logger
 
 class LoggerFactory extends ILoggerFactory {
+
   def getLogger(name: String): Logger = new LoggerAdapter(name)
+
 }

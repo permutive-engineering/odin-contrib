@@ -18,11 +18,18 @@ package com.permutive.logging
 
 import cats.Applicative
 import cats.syntax.foldable._
-import io.odin.meta.{Position, Render, ToThrowable}
-import io.odin.{Level, LoggerMessage, Logger => OdinLogger}
+
+import io.odin.Level
+import io.odin.LoggerMessage
+import io.odin.meta.Position
+import io.odin.meta.Render
+import io.odin.meta.ToThrowable
+import io.odin.{Logger => OdinLogger}
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 
+@SuppressWarnings(Array("scalafix:DisableSyntax.implicitConversion"))
 object Log4Cats2Odin {
+
   abstract class Log4CatsOdinLogger[F[_]: Applicative](
       logger: SelfAwareStructuredLogger[F],
       level: Level = Level.Info
@@ -31,6 +38,7 @@ object Log4Cats2Odin {
     implicit private def renderMessage[M](msg: => M)(implicit
         render: Render[M]
     ): String = render.render(msg)
+
     implicit private def toThrowable[E](e: E)(implicit
         toThrowable: ToThrowable[E]
     ): Throwable =
@@ -43,25 +51,15 @@ object Log4Cats2Odin {
 
     override def log(msg: LoggerMessage): F[Unit] = msg.level match {
       case Level.Trace =>
-        msg.exception.fold(trace(msg.message.value, msg.context))(t =>
-          trace(msg.message.value, msg.context, t)
-        )
+        msg.exception.fold(trace(msg.message.value, msg.context))(t => trace(msg.message.value, msg.context, t))
       case Level.Debug =>
-        msg.exception.fold(debug(msg.message.value, msg.context))(t =>
-          debug(msg.message.value, msg.context, t)
-        )
+        msg.exception.fold(debug(msg.message.value, msg.context))(t => debug(msg.message.value, msg.context, t))
       case Level.Info =>
-        msg.exception.fold(info(msg.message.value, msg.context))(t =>
-          info(msg.message.value, msg.context, t)
-        )
+        msg.exception.fold(info(msg.message.value, msg.context))(t => info(msg.message.value, msg.context, t))
       case Level.Warn =>
-        msg.exception.fold(warn(msg.message.value, msg.context))(t =>
-          warn(msg.message.value, msg.context, t)
-        )
+        msg.exception.fold(warn(msg.message.value, msg.context))(t => warn(msg.message.value, msg.context, t))
       case Level.Error =>
-        msg.exception.fold(error(msg.message.value, msg.context))(t =>
-          error(msg.message.value, msg.context, t)
-        )
+        msg.exception.fold(error(msg.message.value, msg.context))(t => error(msg.message.value, msg.context, t))
     }
 
     override def log(msgs: List[LoggerMessage]): F[Unit] =
@@ -176,6 +174,7 @@ object Log4Cats2Odin {
         tt: ToThrowable[E],
         position: Position
     ): F[Unit] = logger.error(ctx, e)(msg)
+
   }
 
   def convert[F[_]: Applicative](
@@ -183,4 +182,5 @@ object Log4Cats2Odin {
       level: Level = Level.Info
   ): OdinLogger[F] =
     new Log4CatsOdinLogger[F](logger, level) {}
+
 }

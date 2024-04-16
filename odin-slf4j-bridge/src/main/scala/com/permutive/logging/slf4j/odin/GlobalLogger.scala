@@ -18,18 +18,24 @@ package com.permutive.logging.slf4j.odin
 
 import java.util.concurrent.atomic.AtomicReference
 
-import cats.effect.kernel.{Async, Resource, Sync}
-import cats.effect.std.Dispatcher
-import cats.syntax.applicativeError._
-import cats.syntax.flatMap._
-import io.odin.formatter.Formatter
-import io.odin.{Level, Logger}
-
 import scala.util.control.NonFatal
 
-/** Utilities for getting a logger that can be used by SLF4J.
-  */
+import cats.effect.kernel.Async
+import cats.effect.kernel.Resource
+import cats.effect.kernel.Sync
+import cats.effect.std.Dispatcher
+import cats.effect.syntax.all._
+import cats.syntax.applicativeError._
+import cats.syntax.flatMap._
+
+import io.odin.Level
+import io.odin.Logger
+import io.odin.formatter.Formatter
+
+/** Utilities for getting a logger that can be used by SLF4J. */
+@SuppressWarnings(Array("scalafix:DisableSyntax.null", "scalafix:DisableSyntax.==", "scalafix:DisableSyntax.!="))
 object GlobalLogger {
+
   private val default: OdinTranslator =
     OdinTranslator.unsafeConsole(level = Level.Info, Formatter.default)
 
@@ -61,16 +67,13 @@ object GlobalLogger {
     val set = Dispatcher
       .sequential[F]
       .map(implicit dis => OdinTranslator[F](logger))
-      .flatMap(log =>
-        Resource.make(Sync[F].delay(ref.set(log)))(_ =>
-          Sync[F].delay(ref.set(null))
-        )
-      )
+      .flatMap(log => Resource.make(Sync[F].delay(ref.set(log)))(_ => Sync[F].delay(ref.set(null))))
 
     val error: Resource[F, Unit] = new RuntimeException(
       "Logger already set: Cannot set the global logger multiple times"
-    ).raiseError[Resource[F, *], Unit]
+    ).raiseError[F, Unit].toResource
 
     Resource.eval(Sync[F].delay(ref.get())).map(_ == null).ifM(set, error)
   }
+
 }

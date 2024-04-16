@@ -16,16 +16,20 @@
 
 package com.permutive.logging.dynamic.odin
 
-import cats.effect.unsafe.IORuntime
-import cats.effect.{IO, Resource}
-import com.permutive.logging.odin.testing.OdinRefLogger
-import io.odin.{Level, LoggerMessage}
-import io.odin.formatter.Formatter
-import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
-import org.scalacheck.effect.PropF
-
 import scala.collection.immutable.Queue
 import scala.concurrent.duration._
+
+import cats.effect.IO
+import cats.effect.Resource
+import cats.effect.unsafe.IORuntime
+
+import com.permutive.logging.odin.testing.OdinRefLogger
+import io.odin.Level
+import io.odin.LoggerMessage
+import io.odin.formatter.Formatter
+import munit.CatsEffectSuite
+import munit.ScalaCheckEffectSuite
+import org.scalacheck.effect.PropF
 
 class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
 
@@ -75,13 +79,13 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
   ): IO[Queue[LoggerMessage]] = (for {
     testLogger <- Resource.eval(OdinRefLogger.create[IO]())
     dynamic <- DynamicOdinConsoleLogger.create[IO](
-      DynamicOdinConsoleLogger
-        .Config(formatter = Formatter.default, asyncTimeWindow = 0.nanos),
-      DynamicOdinConsoleLogger.RuntimeConfig(Level.Info)
-    )(config => testLogger.withMinimalLevel(config.minLevel))
+                 DynamicOdinConsoleLogger
+                   .Config(formatter = Formatter.default, asyncTimeWindow = 0.nanos),
+                 DynamicOdinConsoleLogger.RuntimeConfig(Level.Info)
+               )(config => testLogger.withMinimalLevel(config.minLevel))
     _ <- Resource.eval(useLogger(dynamic))
-  } yield testLogger)
-    .use { testLogger =>
-      IO.sleep(50.millis) >> testLogger.getMessages
-    }
+  } yield testLogger).use { testLogger =>
+    IO.sleep(50.millis) >> testLogger.getMessages
+  }
+
 }

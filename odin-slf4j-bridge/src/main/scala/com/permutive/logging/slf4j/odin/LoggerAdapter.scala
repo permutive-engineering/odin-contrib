@@ -17,9 +17,12 @@
 package com.permutive.logging.slf4j.odin
 
 import cats.syntax.partialOrder._
+
 import io.odin.Level
 import org.slf4j.Logger
-import org.slf4j.helpers.{FormattingTuple, MarkerIgnoringBase, MessageFormatter}
+import org.slf4j.helpers.FormattingTuple
+import org.slf4j.helpers.MarkerIgnoringBase
+import org.slf4j.helpers.MessageFormatter
 
 class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger {
 
@@ -134,4 +137,5 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger {
       Level.Error,
       MessageFormatter.arrayFormat(format, arguments.toArray)
     )
+
 }

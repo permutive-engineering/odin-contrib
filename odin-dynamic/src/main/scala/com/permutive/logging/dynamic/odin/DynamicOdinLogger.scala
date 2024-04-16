@@ -16,24 +16,32 @@
 
 package com.permutive.logging.dynamic.odin
 
+import scala.concurrent.duration._
+
+import cats.Applicative
+import cats.Monad
 import cats.effect.kernel._
 import cats.kernel.Eq
 import cats.syntax.eq._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
-import cats.{Applicative, Monad}
+
 import com.permutive.logging.dynamic.odin.DynamicOdinConsoleLogger.RuntimeConfig
+import io.odin.Level
+import io.odin.Logger
+import io.odin.LoggerMessage
 import io.odin.config.enclosureRouting
+import io.odin.consoleLogger
 import io.odin.formatter.Formatter
 import io.odin.loggers.DefaultLogger
 import io.odin.syntax._
-import io.odin.{consoleLogger, Level, Logger, LoggerMessage}
-
-import scala.concurrent.duration._
 
 trait DynamicOdinConsoleLogger[F[_]] extends Logger[F] {
+
   def update(config: RuntimeConfig): F[Boolean]
+
   def getConfig: F[RuntimeConfig]
+
 }
 
 class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
@@ -42,8 +50,9 @@ class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
 )(make: RuntimeConfig => Logger[F])(implicit eq: Eq[RuntimeConfig])
     extends DefaultLogger[F](level)
     with DynamicOdinConsoleLogger[F] { outer =>
-  protected def withLogger(f: Logger[F] => F[Unit]): F[Unit] = ref.get.flatMap {
-    case (_, l) => f(l)
+
+  protected def withLogger(f: Logger[F] => F[Unit]): F[Unit] = ref.get.flatMap { case (_, l) =>
+    f(l)
   }
 
   override def update(config: RuntimeConfig): F[Boolean] =
@@ -57,32 +66,37 @@ class DynamicOdinConsoleLoggerImpl[F[_]: Monad: Clock] private[odin] (
 
   override def withMinimalLevel(level: Level): Logger[F] =
     new DynamicOdinConsoleLoggerImpl[F](ref, level)(make) {
+
       override protected def withLogger(f: Logger[F] => F[Unit]): F[Unit] =
         outer.withLogger(l => f(l.withMinimalLevel(level)))
+
     }
+
 }
 
 object DynamicOdinConsoleLogger {
-  case class Config(
+
+  final case class Config(
       formatter: Formatter,
       asyncTimeWindow: FiniteDuration = 1.millis,
       asyncMaxBufferSize: Option[Int] = None
   )
 
-  case class RuntimeConfig(
+  final case class RuntimeConfig(
       minLevel: Level,
       levelMapping: Map[String, Level] = Map.empty
   )
+
   object RuntimeConfig {
+
     implicit val eq: Eq[RuntimeConfig] = cats.derived.semiauto.eq
+
   }
 
-  def console[F[_]: Async](config: Config, initialConfig: RuntimeConfig)(
-      implicit eq: Eq[RuntimeConfig]
+  def console[F[_]: Async](config: Config, initialConfig: RuntimeConfig)(implicit
+      eq: Eq[RuntimeConfig]
   ): Resource[F, DynamicOdinConsoleLogger[F]] =
-    create(config, initialConfig)(c =>
-      consoleLogger(config.formatter, c.minLevel)
-    )
+    create(config, initialConfig)(c => consoleLogger(config.formatter, c.minLevel))
 
   def create[F[_]: Async](
       config: Config,
@@ -107,20 +121,19 @@ object DynamicOdinConsoleLogger {
 
     for {
       ref <- Resource.eval(
-        Ref.of[F, (RuntimeConfig, Logger[F])](
-          runtimeConfig -> makeWithLevels(runtimeConfig)
-        )
-      )
+               Ref.of[F, (RuntimeConfig, Logger[F])](
+                 runtimeConfig -> makeWithLevels(runtimeConfig)
+               )
+             )
       underlying = new DynamicOdinConsoleLoggerImpl[F](
-        ref,
-        runtimeConfig.minLevel
-      )(makeWithLevels)
+                     ref,
+                     runtimeConfig.minLevel
+                   )(makeWithLevels)
       async <- underlying.withAsync(
-        config.asyncTimeWindow,
-        config.asyncMaxBufferSize
-      )
-    } yield new DefaultLogger[F](async.minLevel)
-      with DynamicOdinConsoleLogger[F] {
+                 config.asyncTimeWindow,
+                 config.asyncMaxBufferSize
+               )
+    } yield new DefaultLogger[F](async.minLevel) with DynamicOdinConsoleLogger[F] {
       override def submit(msg: LoggerMessage): F[Unit] = async.log(msg)
 
       override def update(config: RuntimeConfig): F[Boolean] =
@@ -131,4 +144,5 @@ object DynamicOdinConsoleLogger {
         async.withMinimalLevel(level)
     }
   }
+
 }
