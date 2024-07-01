@@ -28,7 +28,7 @@ lazy val `odin-testing` = module
 lazy val `log4cats-odin` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.4")
-  .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.6.0")
+  .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.7.0")
   .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
 
 lazy val `odin-slf4j-bridge` = module
