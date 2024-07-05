@@ -43,6 +43,10 @@ In benchmarks, the bridge performs as well as [Log4Cats] with a [Logback] backen
 "com.permutive" %% "odin-slf4j-bridge" "<VERSION>"
 ```
 
+## [`odin-slf4j2-bridge`]
+
+A bridge between [Odin] and [Slf4j] versions 2 and above, allowing the dynamic [Odin] logger to be used by default for [Slf4j] log messages.
+
 [`odin-testing`]: odin-testing
 [`log4cats-odin`]: log4cats-odin
 [`odin-dynamic`]: odin-dynamic
