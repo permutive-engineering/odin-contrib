@@ -38,6 +38,10 @@ lazy val `odin-slf4j-bridge` = module
   .settings(libraryDependencies += "com.github.valskalla" %% "odin-core" % "0.13.0")
   .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.36") // scala-steward:off
 
+lazy val `odin-slf4j2-bridge` = module
+  .dependsOn(`odin-slf4j-bridge`)
+  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "2.0.13")
+
 lazy val `odin-slf4j-bridge-benchmarks` = module
   .enablePlugins(JmhPlugin)
   .dependsOn(`odin-slf4j-bridge`)
