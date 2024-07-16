@@ -22,16 +22,23 @@ import scala.concurrent.duration._
 import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.unsafe.IORuntime
+import cats.syntax.all._
 
 import com.permutive.logging.odin.testing.OdinRefLogger
 import io.odin.Level
 import io.odin.LoggerMessage
 import io.odin.formatter.Formatter
 import munit.CatsEffectSuite
-import munit.ScalaCheckEffectSuite
+import munit.Exceptions
+import munit.Location
+import munit.ScalaCheckSuite
+import org.scalacheck.Gen
+import org.scalacheck.Test
 import org.scalacheck.effect.PropF
+import org.scalacheck.rng.Seed
+import org.scalacheck.util.Pretty
 
-class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
+class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckSuite {
 
   implicit val runtime: IORuntime = IORuntime.global
 
@@ -87,5 +94,58 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckEffectSuite {
   } yield testLogger).use { testLogger =>
     IO.sleep(50.millis) >> testLogger.getMessages
   }
+
+  private val genParameters: Gen.Parameters =
+    Gen.Parameters.default
+      .withLegacyShrinking(scalaCheckTestParameters.useLegacyShrinking)
+      .withInitialSeed(
+        scalaCheckTestParameters.initialSeed.getOrElse(
+          Seed.fromBase64(scalaCheckInitialSeed).get
+        )
+      )
+
+  override def munitValueTransforms: List[ValueTransform] = {
+    val testResultTransform = new ValueTransform(
+      "ScalaCheck TestResult",
+      { case p: Test.Result =>
+        super.munitValueTransform(parseTestResult(p))
+      }
+    )
+
+    val scalaCheckPropFValueTransform = new ValueTransform(
+      "ScalaCheck PropF",
+      { case p: PropF[f] =>
+        super.munitValueTransform(checkPropF[f](p))
+      }
+    )
+
+    super.munitValueTransforms :+ scalaCheckPropFValueTransform :+ testResultTransform
+  }
+
+  private def checkPropF[F[_]](prop: PropF[F])(implicit loc: Location): F[Unit] = {
+    import prop.F
+    prop.check(scalaCheckTestParameters, genParameters).map(fixResultException).map(parseTestResult)
+  }
+
+  private def parseTestResult(result: Test.Result)(implicit loc: Location): Unit = {
+    if (!result.passed) {
+      val seed = genParameters.initialSeed.get
+      val seedMessage =
+        s"""|Failing seed: ${seed.toBase64}
+            |You can reproduce this failure by adding the following override to your suite:
+            |
+            |  override def scalaCheckInitialSeed = "${seed.toBase64}"
+            |""".stripMargin
+      fail(seedMessage + "\n" + Pretty.pretty(result, scalaCheckPrettyParameters))
+    }
+  }
+
+  private def fixResultException(result: Test.Result): Test.Result =
+    result.copy(
+      status = result.status match {
+        case p @ Test.PropException(_, e, _) => p.copy(e = Exceptions.rootCause(e))
+        case default                         => default
+      }
+    )
 
 }
