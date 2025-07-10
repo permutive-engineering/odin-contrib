@@ -12,7 +12,7 @@ lazy val documentation = project
 
 lazy val `odin-dynamic` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
-  .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.3.0")
+  .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.5.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.7")
   .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.5.7" % Test)
