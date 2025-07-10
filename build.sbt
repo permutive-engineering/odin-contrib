@@ -11,7 +11,7 @@ lazy val documentation = project
   .enablePlugins(MdocPlugin)
 
 lazy val `odin-dynamic` = module
-  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.3.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.4")
   .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
@@ -22,18 +22,18 @@ lazy val `odin-dynamic` = module
   .dependsOn(`odin-testing` % "test->compile")
 
 lazy val `odin-testing` = module
-  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.4")
   .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
 
 lazy val `log4cats-odin` = module
-  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.4")
   .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.7.0")
   .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
 
 lazy val `odin-slf4j-bridge` = module
-  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.12.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.5.4")
   .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
   .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.36") // scala-steward:off
