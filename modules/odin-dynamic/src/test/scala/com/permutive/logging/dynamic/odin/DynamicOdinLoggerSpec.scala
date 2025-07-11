@@ -86,8 +86,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckSuite {
   ): IO[Queue[LoggerMessage]] = (for {
     testLogger <- Resource.eval(OdinRefLogger.create[IO]())
     dynamic <- DynamicOdinConsoleLogger.create[IO](
-                 DynamicOdinConsoleLogger
-                   .Config(formatter = Formatter.default, asyncTimeWindow = 0.nanos),
+                 DynamicOdinConsoleLogger.Config(formatter = Formatter.default),
                  DynamicOdinConsoleLogger.RuntimeConfig(Level.Info)
                )(config => testLogger.withMinimalLevel(config.minLevel))
     _ <- Resource.eval(useLogger(dynamic))
