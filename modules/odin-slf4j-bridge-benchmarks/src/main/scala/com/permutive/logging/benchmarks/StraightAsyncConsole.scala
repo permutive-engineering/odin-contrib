@@ -16,8 +16,6 @@
 
 package com.permutive.logging.benchmarks
 
-import scala.concurrent.duration._
-
 import cats.effect.IO
 import cats.effect.kernel.Async
 import cats.effect.unsafe.implicits.global
@@ -36,11 +34,7 @@ class StraightAsyncConsole {
   implicit val F: Async[IO] = IO.asyncForIO
 
   val logger = AsyncLogger
-    .withAsync(
-      consoleLogger[IO](minLevel = Level.Info, formatter = Formatter.default),
-      10.millis,
-      None
-    )
+    .withAsync(consoleLogger[IO](minLevel = Level.Info, formatter = Formatter.default), None)
     .allocated
     .unsafeRunSync()
     ._1

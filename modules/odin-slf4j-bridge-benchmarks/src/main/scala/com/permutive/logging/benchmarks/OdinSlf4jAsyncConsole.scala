@@ -16,8 +16,6 @@
 
 package com.permutive.logging.benchmarks
 
-import scala.concurrent.duration._
-
 import cats.effect.IO
 import cats.effect.kernel.Async
 import cats.effect.unsafe.implicits.global
@@ -41,7 +39,7 @@ class OdinSlf4jAsyncConsole {
 
   locally {
     AsyncLogger
-      .withAsync(consoleLogger[IO](minLevel = Level.Info, formatter = Formatter.colorful), 10.millis, None)
+      .withAsync(consoleLogger[IO](minLevel = Level.Info, formatter = Formatter.colorful), None)
       .flatMap(GlobalLogger.setLogger[IO])
       .allocated
       ._1F

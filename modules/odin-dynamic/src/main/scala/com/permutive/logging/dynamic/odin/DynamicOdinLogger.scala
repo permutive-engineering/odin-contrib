@@ -16,8 +16,6 @@
 
 package com.permutive.logging.dynamic.odin
 
-import scala.concurrent.duration._
-
 import cats.Applicative
 import cats.Monad
 import cats.effect.kernel._
@@ -78,7 +76,6 @@ object DynamicOdinConsoleLogger {
 
   final case class Config(
       formatter: Formatter,
-      asyncTimeWindow: FiniteDuration = 1.millis,
       asyncMaxBufferSize: Option[Int] = None
   )
 
@@ -129,10 +126,7 @@ object DynamicOdinConsoleLogger {
                      ref,
                      runtimeConfig.minLevel
                    )(makeWithLevels)
-      async <- underlying.withAsync(
-                 config.asyncTimeWindow,
-                 config.asyncMaxBufferSize
-               )
+      async <- underlying.withAsync(config.asyncMaxBufferSize)
     } yield new DefaultLogger[F](async.minLevel) with DynamicOdinConsoleLogger[F] {
       override def submit(msg: LoggerMessage): F[Unit] = async.log(msg)
 
