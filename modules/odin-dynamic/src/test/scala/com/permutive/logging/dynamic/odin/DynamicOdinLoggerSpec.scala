@@ -16,6 +16,7 @@
 
 package com.permutive.logging.dynamic.odin
 
+import scala.annotation.nowarn
 import scala.collection.immutable.Queue
 import scala.concurrent.duration._
 
@@ -85,7 +86,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckSuite {
       useLogger: DynamicOdinConsoleLogger[IO] => IO[Unit]
   ): IO[Queue[LoggerMessage]] = (for {
     testLogger <- Resource.eval(OdinRefLogger.create[IO]())
-    dynamic <- DynamicOdinConsoleLogger.create[IO](
+    dynamic    <- DynamicOdinConsoleLogger.create[IO](
                  DynamicOdinConsoleLogger.Config(formatter = Formatter.default),
                  DynamicOdinConsoleLogger.RuntimeConfig(Level.Info)
                )(config => testLogger.withMinimalLevel(config.minLevel))
@@ -103,12 +104,11 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckSuite {
         )
       )
 
+  @nowarn
   override def munitValueTransforms: List[ValueTransform] = {
     val testResultTransform = new ValueTransform(
       "ScalaCheck TestResult",
-      { case p: Test.Result =>
-        super.munitValueTransform(parseTestResult(p))
-      }
+      { case p: Test.Result => super.munitValueTransform(parseTestResult(p)) }
     )
 
     val scalaCheckPropFValueTransform = new ValueTransform(
@@ -128,7 +128,7 @@ class DynamicOdinLoggerSpec extends CatsEffectSuite with ScalaCheckSuite {
 
   private def parseTestResult(result: Test.Result)(implicit loc: Location): Unit = {
     if (!result.passed) {
-      val seed = genParameters.initialSeed.get
+      val seed        = genParameters.initialSeed.get
       val seedMessage =
         s"""|Failing seed: ${seed.toBase64}
             |You can reproduce this failure by adding the following override to your suite:
