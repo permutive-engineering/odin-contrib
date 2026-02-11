@@ -41,101 +41,111 @@ class LoggerAdapter(loggerName: String) extends MarkerIgnoringBase with Logger {
   override lazy val isTraceEnabled: Boolean =
     GlobalLogger.get.minLevel <= Level.Trace
 
-  override def trace(msg: String): Unit = run(Level.Trace, msg)
+  override def trace(msg: String): Unit =
+    if (isTraceEnabled) run(Level.Trace, msg)
 
   override def trace(format: String, arg: Any): Unit =
-    runFormatted(Level.Trace, MessageFormatter.format(format, arg))
+    if (isTraceEnabled) runFormatted(Level.Trace, MessageFormatter.format(format, arg))
 
   override def trace(format: String, arg1: Any, arg2: Any): Unit =
-    runFormatted(Level.Trace, MessageFormatter.format(format, arg1, arg2))
+    if (isTraceEnabled) runFormatted(Level.Trace, MessageFormatter.format(format, arg1, arg2))
 
   override def trace(msg: String, t: Throwable): Unit =
-    run(Level.Trace, msg, Option(t))
+    if (isTraceEnabled) run(Level.Trace, msg, Option(t))
 
   override def trace(format: String, arguments: AnyRef*): Unit =
-    runFormatted(
-      Level.Trace,
-      MessageFormatter.arrayFormat(format, arguments.toArray)
-    )
+    if (isTraceEnabled)
+      runFormatted(
+        Level.Trace,
+        MessageFormatter.arrayFormat(format, arguments.toArray)
+      )
 
   override lazy val isDebugEnabled: Boolean =
     GlobalLogger.get.minLevel <= Level.Debug
 
-  override def debug(msg: String): Unit = run(Level.Debug, msg)
+  override def debug(msg: String): Unit =
+    if (isDebugEnabled) run(Level.Debug, msg)
 
   override def debug(format: String, arg: Any): Unit =
-    runFormatted(Level.Debug, MessageFormatter.format(format, arg))
+    if (isDebugEnabled) runFormatted(Level.Debug, MessageFormatter.format(format, arg))
 
   override def debug(format: String, arg1: Any, arg2: Any): Unit =
-    runFormatted(Level.Debug, MessageFormatter.format(format, arg1, arg2))
+    if (isDebugEnabled) runFormatted(Level.Debug, MessageFormatter.format(format, arg1, arg2))
 
   override def debug(msg: String, t: Throwable): Unit =
-    run(Level.Debug, msg, Option(t))
+    if (isDebugEnabled) run(Level.Debug, msg, Option(t))
 
   override def debug(format: String, arguments: AnyRef*): Unit =
-    runFormatted(
-      Level.Debug,
-      MessageFormatter.arrayFormat(format, arguments.toArray)
-    )
+    if (isDebugEnabled)
+      runFormatted(
+        Level.Debug,
+        MessageFormatter.arrayFormat(format, arguments.toArray)
+      )
 
   override lazy val isInfoEnabled: Boolean =
     GlobalLogger.get.minLevel <= Level.Info
 
-  override def info(msg: String): Unit = run(Level.Info, msg)
+  override def info(msg: String): Unit =
+    if (isInfoEnabled) run(Level.Info, msg)
 
   override def info(format: String, arg: Any): Unit =
-    runFormatted(Level.Info, MessageFormatter.format(format, arg))
+    if (isInfoEnabled) runFormatted(Level.Info, MessageFormatter.format(format, arg))
 
   override def info(format: String, arg1: Any, arg2: Any): Unit =
-    runFormatted(Level.Info, MessageFormatter.format(format, arg1, arg2))
+    if (isInfoEnabled) runFormatted(Level.Info, MessageFormatter.format(format, arg1, arg2))
 
   override def info(msg: String, t: Throwable): Unit =
-    run(Level.Info, msg, Option(t))
+    if (isInfoEnabled) run(Level.Info, msg, Option(t))
 
   override def info(format: String, arguments: AnyRef*): Unit =
-    runFormatted(
-      Level.Info,
-      MessageFormatter.arrayFormat(format, arguments.toArray)
-    )
+    if (isInfoEnabled)
+      runFormatted(
+        Level.Info,
+        MessageFormatter.arrayFormat(format, arguments.toArray)
+      )
 
   override lazy val isWarnEnabled: Boolean =
     GlobalLogger.get.minLevel <= Level.Warn
 
-  override def warn(msg: String): Unit = run(Level.Warn, msg)
+  override def warn(msg: String): Unit =
+    if (isWarnEnabled) run(Level.Warn, msg)
 
   override def warn(format: String, arg: Any): Unit =
-    runFormatted(Level.Warn, MessageFormatter.format(format, arg))
+    if (isWarnEnabled) runFormatted(Level.Warn, MessageFormatter.format(format, arg))
 
   override def warn(format: String, arg1: Any, arg2: Any): Unit =
-    runFormatted(Level.Warn, MessageFormatter.format(format, arg1, arg2))
+    if (isWarnEnabled) runFormatted(Level.Warn, MessageFormatter.format(format, arg1, arg2))
 
   override def warn(msg: String, t: Throwable): Unit =
-    run(Level.Warn, msg, Option(t))
+    if (isWarnEnabled) run(Level.Warn, msg, Option(t))
 
   override def warn(format: String, arguments: AnyRef*): Unit =
-    runFormatted(
-      Level.Warn,
-      MessageFormatter.arrayFormat(format, arguments.toArray)
-    )
+    if (isWarnEnabled)
+      runFormatted(
+        Level.Warn,
+        MessageFormatter.arrayFormat(format, arguments.toArray)
+      )
 
   override lazy val isErrorEnabled: Boolean =
     GlobalLogger.get.minLevel <= Level.Error
 
-  override def error(msg: String): Unit = run(Level.Error, msg)
+  override def error(msg: String): Unit =
+    if (isErrorEnabled) run(Level.Error, msg)
 
   override def error(format: String, arg: Any): Unit =
-    runFormatted(Level.Error, MessageFormatter.format(format, arg))
+    if (isErrorEnabled) runFormatted(Level.Error, MessageFormatter.format(format, arg))
 
   override def error(format: String, arg1: Any, arg2: Any): Unit =
-    runFormatted(Level.Error, MessageFormatter.format(format, arg1, arg2))
+    if (isErrorEnabled) runFormatted(Level.Error, MessageFormatter.format(format, arg1, arg2))
 
   override def error(msg: String, t: Throwable): Unit =
-    run(Level.Error, msg, Option(t))
+    if (isErrorEnabled) run(Level.Error, msg, Option(t))
 
   override def error(format: String, arguments: AnyRef*): Unit =
-    runFormatted(
-      Level.Error,
-      MessageFormatter.arrayFormat(format, arguments.toArray)
-    )
+    if (isErrorEnabled)
+      runFormatted(
+        Level.Error,
+        MessageFormatter.arrayFormat(format, arguments.toArray)
+      )
 
 }
