@@ -14,7 +14,7 @@ lazy val `odin-dynamic` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.5.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.6.2")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.18.1")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.6.2" % Test)
   .settings(libraryDependencies += "org.typelevel" %% "scalacheck-effect" % "1.0.4" % Test)
   .settings(libraryDependencies += "org.typelevel" %% "munit-cats-effect" % "2.1.0" % Test)
@@ -24,18 +24,18 @@ lazy val `odin-dynamic` = module
 lazy val `odin-testing` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.6.2")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.18.1")
 
 lazy val `log4cats-odin` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.6.2")
   .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.7.1")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.18.1")
 
 lazy val `odin-slf4j-bridge` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.6.2")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.17.0")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.18.1")
   .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.36") // scala-steward:off
 
 lazy val `odin-slf4j2-bridge` = module
