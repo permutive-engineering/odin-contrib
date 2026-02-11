@@ -60,7 +60,7 @@ object OdinTranslator {
       ): Unit =
         dispatcher.unsafeRunSync(for {
           timestamp <- Clock[F].realTime
-          _ <- underlying.log(
+          _         <- underlying.log(
                  makeMessage(loggerName, level, msg, t, timestamp.toMillis)
                )
         } yield ())
