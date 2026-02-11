@@ -58,12 +58,14 @@ object OdinTranslator {
           msg: String,
           t: Option[Throwable]
       ): Unit =
-        dispatcher.unsafeRunSync(for {
-          timestamp <- Clock[F].realTime
-          _         <- underlying.log(
-                 makeMessage(loggerName, level, msg, t, timestamp.toMillis)
-               )
-        } yield ())
+        if (level >= minLevel) {
+          dispatcher.unsafeRunAndForget(for {
+            timestamp <- Clock[F].realTime
+            _         <- underlying.log(
+                   makeMessage(loggerName, level, msg, t, timestamp.toMillis)
+                 )
+          } yield ())
+        }
 
       override def minLevel: Level = underlying.minLevel
 
