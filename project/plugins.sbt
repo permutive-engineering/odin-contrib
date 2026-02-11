@@ -13,5 +13,5 @@ addSbtPlugin("com.github.sbt"                 % "sbt-header"            % "5.11.
 addSbtPlugin("ch.epfl.scala"                     % "sbt-version-policy"    % "3.2.1")
 addSbtPlugin("org.typelevel"                     % "sbt-tpolecat"          % "0.5.2")
 addSbtPlugin("org.scalameta"                     % "sbt-mdoc"              % "2.8.2")
-addSbtPlugin("org.scalameta"                     % "sbt-scalafmt"          % "2.5.5")
+addSbtPlugin("org.scalameta"                     % "sbt-scalafmt"          % "2.5.6")
 addSbtPlugin("pl.project13.scala"                % "sbt-jmh"               % "0.4.7")
