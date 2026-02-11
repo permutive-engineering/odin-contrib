@@ -18,7 +18,7 @@ lazy val `odin-dynamic` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.6.2" % Test)
   .settings(libraryDependencies += "org.typelevel" %% "scalacheck-effect" % "1.0.4" % Test)
   .settings(libraryDependencies += "org.typelevel" %% "munit-cats-effect" % "2.1.0" % Test)
-  .settings(libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.1.0" % Test)
+  .settings(libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.2.0" % Test)
   .dependsOn(`odin-testing` % "test->compile")
 
 lazy val `odin-testing` = module
