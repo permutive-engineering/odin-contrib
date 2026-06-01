@@ -40,7 +40,7 @@ lazy val `odin-slf4j-bridge` = module
 
 lazy val `odin-slf4j2-bridge` = module
   .dependsOn(`odin-slf4j-bridge`)
-  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "2.0.17")
+  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "2.0.18")
 
 lazy val `odin-slf4j-bridge-benchmarks` = module
   .enablePlugins(JmhPlugin)
