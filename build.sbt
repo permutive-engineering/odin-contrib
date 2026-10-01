@@ -1,5 +1,5 @@
-ThisBuild / scalaVersion           := "2.13.18"
-ThisBuild / crossScalaVersions     := Seq("2.13.18", "3.3.7")
+ThisBuild / scalaVersion           := "3.9.0"
+ThisBuild / crossScalaVersions     := Seq("3.9.0", "3.3.8")
 ThisBuild / organization           := "com.permutive"
 ThisBuild / versionPolicyIntention := Compatibility.BinaryAndSourceCompatible
 
@@ -13,34 +13,34 @@ lazy val documentation = project
 lazy val `odin-dynamic` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
   .settings(libraryDependencies += "org.typelevel" %% "kittens" % "3.5.0")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.0")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.1")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.7.0" % Test)
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.1")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.2")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect-testkit" % "3.7.1" % Test)
   .settings(libraryDependencies += "org.typelevel" %% "scalacheck-effect" % "2.1.0" % Test)
-  .settings(libraryDependencies += "org.typelevel" %% "munit-cats-effect" % "2.2.0" % Test)
-  .settings(libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.3.0" % Test)
+  .settings(libraryDependencies += "org.typelevel" %% "munit-cats-effect" % "2.2.1" % Test)
+  .settings(libraryDependencies += "org.scalameta" %% "munit-scalacheck" % "1.3.1" % Test)
   .dependsOn(`odin-testing` % "test->compile")
 
 lazy val `odin-testing` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.0")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.1")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.1")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.2")
 
 lazy val `log4cats-odin` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.1")
   .settings(libraryDependencies += "org.typelevel" %% "log4cats-core" % "2.8.0")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.1")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.2")
 
 lazy val `odin-slf4j-bridge` = module
   .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "2.13.0")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.0")
-  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.1")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-effect" % "3.7.1")
+  .settings(libraryDependencies += "dev.scalafreaks" %% "odin-core" % "0.20.2")
   .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.36") // scala-steward:off
 
 lazy val `odin-slf4j2-bridge` = module
   .dependsOn(`odin-slf4j-bridge`)
-  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "2.0.17")
+  .settings(libraryDependencies += "org.slf4j" % "slf4j-api" % "2.0.20")
 
 lazy val `odin-slf4j-bridge-benchmarks` = module
   .enablePlugins(JmhPlugin)
